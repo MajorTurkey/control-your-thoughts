@@ -6,7 +6,9 @@ import {
   type AspectId,
   type StyleId,
 } from "@/lib/imaging/catalog";
-import { exposePlate } from "@/lib/imaging/generate";
+import { exposePlate, takePlate } from "@/lib/imaging/generate";
+import { KEEP_COST, readCredits } from "@/lib/imaging/credits";
+import { PackRow, PlateWindow } from "@/components/plate-window";
 
 const PREF_KEY = "imaging-bay";
 
@@ -35,6 +37,11 @@ export function ImagingBay() {
   const [status, setStatus] = useState("");
   const [shown, setShown] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
+  const [credits, setCredits] = useState(0);
+  const [creditsReady, setCreditsReady] = useState(false);
+  const [windowOpen, setWindowOpen] = useState(false);
+  const [keptUrl, setKeptUrl] = useState<string | null>(null);
+  const [fileNote, setFileNote] = useState("");
 
   useEffect(() => {
     try {
@@ -52,12 +59,28 @@ export function ImagingBay() {
       /* keep defaults */
     }
     setPrefsReady(true);
+    setCredits(readCredits());
+    setCreditsReady(true);
   }, []);
 
   useEffect(() => {
     if (!prefsReady) return;
     localStorage.setItem(PREF_KEY, JSON.stringify({ styleId, aspect }));
   }, [prefsReady, styleId, aspect]);
+
+  useEffect(() => {
+    if (!creditsReady) return;
+    localStorage.setItem("imaging-bay-credits", String(credits));
+  }, [creditsReady, credits]);
+
+  useEffect(() => {
+    if (!windowOpen) return;
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setWindowOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [windowOpen]);
 
   async function expose() {
     const text = subject.trim();
@@ -86,11 +109,47 @@ export function ImagingBay() {
       setImageUrl(result.url);
       setPlateLabel(`${result.styleName} · ${result.aspectName}`);
       setPhase("ready");
-      setStatus("Mark what is missing or wrong.");
+      setStatus("");
+      setFileNote("");
+      setWindowOpen(true);
       setLogOpen(true);
     } catch (error) {
       setPhase("error");
       setStatus(error instanceof Error ? error.message : "The bay did not answer.");
+    }
+  }
+
+  async function savePlate(kind: "download" | "copy") {
+    if (!imageUrl || keptUrl !== imageUrl) return;
+    setFileNote(kind === "copy" ? "Copying…" : "Filing…");
+    try {
+      let source = imageUrl;
+      if (!source.startsWith("data:")) {
+        const taken = await takePlate({ data: { url: source } });
+        if (!taken.ok) {
+          setFileNote(taken.error);
+          return;
+        }
+        source = taken.dataUrl;
+      }
+      const blob = await (await fetch(source)).blob();
+      if (kind === "download") {
+        const href = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = href;
+        link.download = "imaging-bay.jpg";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(href);
+        setFileNote("Filed.");
+        return;
+      }
+      const type = blob.type || "image/png";
+      await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
+      setFileNote("Copied.");
+    } catch {
+      setFileNote(kind === "copy" ? "Copy did not leave the bay." : "The file did not leave the bay.");
     }
   }
 
@@ -104,6 +163,9 @@ export function ImagingBay() {
     setPhase("idle");
     setStatus("");
     setLogOpen(false);
+    setWindowOpen(false);
+    setKeptUrl(null);
+    setFileNote("");
   }
 
   const selected = STYLES.find((style) => style.id === styleId) ?? STYLES[0];
@@ -120,6 +182,10 @@ export function ImagingBay() {
       <h1 className="bay-title font-display mt-4 text-5xl leading-none font-medium text-balance">
         Imaging Bay
       </h1>
+      <div className="mt-5">
+        <p className="bay-label text-xs text-butter">{credits} credits</p>
+        <PackRow onDraw={(pack) => setCredits((count) => count + pack.credits)} />
+      </div>
 
       <section className="mt-10" aria-labelledby="plate-label">
         <h2 id="plate-label" className="bay-kicker mb-3 text-xs uppercase">
@@ -210,11 +276,18 @@ export function ImagingBay() {
             </div>
             <div className={`relative bg-void ${ratioClass(aspect)}`}>
               {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={subject.trim() || "Exposed plate"}
-                  className="absolute inset-0 h-full w-full object-contain"
-                />
+                <button
+                  type="button"
+                  className="absolute inset-0"
+                  onClick={() => setWindowOpen(true)}
+                  aria-label="Open the plate"
+                >
+                  <img
+                    src={imageUrl}
+                    alt={subject.trim() || "Exposed plate"}
+                    className="h-full w-full object-contain"
+                  />
+                </button>
               ) : (
                 <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs tracking-widest text-mute uppercase">
                   {busy ? "Exposing" : "No plate"}
@@ -224,6 +297,33 @@ export function ImagingBay() {
           </div>
           <p className={`mt-3 text-sm ${phase === "error" ? "text-danger" : "text-mute"}`}>{status}</p>
         </section>
+      ) : null}
+
+      {windowOpen && imageUrl ? (
+        <PlateWindow
+          url={imageUrl}
+          label={plateLabel || selected.name}
+          credits={credits}
+          kept={keptUrl === imageUrl}
+          note={fileNote}
+          onClose={() => setWindowOpen(false)}
+          onKeep={() => {
+            if (keptUrl === imageUrl) return;
+            if (credits < KEEP_COST) {
+              setFileNote("A keep costs 1 credit.");
+              return;
+            }
+            setCredits((count) => count - KEEP_COST);
+            setKeptUrl(imageUrl);
+            setFileNote("Kept. Download the file, or copy it.");
+          }}
+          onDownload={() => void savePlate("download")}
+          onCopy={() => void savePlate("copy")}
+          onDraw={(pack) => {
+            setCredits((count) => count + pack.credits);
+            setFileNote(`${pack.name} added. ${pack.credits} credits.`);
+          }}
+        />
       ) : null}
 
       {logOpen ? (

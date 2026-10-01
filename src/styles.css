@@ -178,6 +178,44 @@
     0 10px 18px rgb(0 0 0 / 40%);
 }
 
+.bay-shade {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(7 9 12 / 74%);
+}
+
+.bay-window {
+  width: min(960px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  box-shadow:
+    0 24px 60px rgb(0 0 0 / 55%),
+    0 0 28px rgb(242 198 214 / 22%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bay-window {
+    animation: bay-open 180ms ease-out;
+  }
+
+  @keyframes bay-open {
+    from {
+      transform: scale(0.9);
+      opacity: 0.35;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+
 @media (prefers-reduced-motion: no-preference) {
   .lamp {
     animation: lamp 2.8s ease-in-out infinite;

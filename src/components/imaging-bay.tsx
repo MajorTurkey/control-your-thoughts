@@ -42,6 +42,8 @@ export function ImagingBay() {
   const [windowOpen, setWindowOpen] = useState(false);
   const [keptUrl, setKeptUrl] = useState<string | null>(null);
   const [fileNote, setFileNote] = useState("");
+  const [reference, setReference] = useState("");
+  const [liked, setLiked] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -61,6 +63,17 @@ export function ImagingBay() {
     setPrefsReady(true);
     setCredits(readCredits());
     setCreditsReady(true);
+    try {
+      const raw = localStorage.getItem("imaging-bay-liked");
+      if (raw) {
+        const saved = JSON.parse(raw) as unknown;
+        if (Array.isArray(saved)) {
+          setLiked(saved.filter((item) => typeof item === "string").slice(0, 4));
+        }
+      }
+    } catch {
+      /* no memory */
+    }
   }, []);
 
   useEffect(() => {
@@ -72,6 +85,14 @@ export function ImagingBay() {
     if (!creditsReady) return;
     localStorage.setItem("imaging-bay-credits", String(credits));
   }, [creditsReady, credits]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("imaging-bay-liked", JSON.stringify(liked.slice(0, 4)));
+    } catch {
+      /* the desk forgot */
+    }
+  }, [liked]);
 
   useEffect(() => {
     if (!windowOpen) return;
@@ -87,7 +108,7 @@ export function ImagingBay() {
     if (!text || phase === "exposing") return;
     setPhase("exposing");
     setShown(true);
-    setStatus("Exposing the plate…");
+    setStatus(reference ? "Engendering from the reference…" : "Exposing the plate…");
     try {
       const result = await exposePlate({
         data: {
@@ -98,6 +119,7 @@ export function ImagingBay() {
           different: different.trim(),
           omit: omit.trim(),
           note: note.trim(),
+          reference,
         },
       });
       if (!result.ok) {
@@ -153,6 +175,22 @@ export function ImagingBay() {
     }
   }
 
+  async function shrinkReference(file: File): Promise<string> {
+    const bitmap = await createImageBitmap(file);
+    const max = 768;
+    const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) return "";
+    context.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+    return canvas.toDataURL("image/jpeg", 0.82);
+  }
+
   function resetLog() {
     setMissing("");
     setDifferent("");
@@ -182,6 +220,13 @@ export function ImagingBay() {
       <h1 className="bay-title font-display mt-4 text-5xl leading-none font-medium text-balance">
         Imaging Bay
       </h1>
+      <p className="font-display mt-4 max-w-xl text-lg leading-snug text-pretty text-lilac">
+        The plate is the manner. The sentence is only the subject.
+      </p>
+      <p className="font-display mt-3 max-w-xl text-lg leading-snug text-pretty text-blush">
+        GPT Image 2.5 engenders the plate. Take a reference. Those desks also edit, take
+        references, and remember what you liked.
+      </p>
       <div className="mt-5">
         <p className="bay-label text-xs text-butter">{credits} credits</p>
         <PackRow onDraw={(pack) => setCredits((count) => count + pack.credits)} />
@@ -239,6 +284,45 @@ export function ImagingBay() {
         </div>
       </section>
 
+      <section className="mt-8" aria-labelledby="reference-label">
+        <h2 id="reference-label" className="bay-kicker mb-3 text-xs text-blush uppercase">
+          Reference
+        </h2>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="bay-press inline-flex min-h-12 cursor-pointer items-center px-4 text-xs uppercase">
+            Take reference
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="sr-only"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = "";
+                if (!file) return;
+                void shrinkReference(file).then(setReference);
+              }}
+            />
+          </label>
+          {reference ? (
+            <button type="button" className="bay-label text-xs text-peach" onClick={() => setReference("")}>
+              Clear
+            </button>
+          ) : null}
+        </div>
+        {reference ? (
+          <img src={reference} alt="Reference" className="mt-3 h-24 w-24 object-cover" />
+        ) : null}
+        {liked.length > 0 ? (
+          <div className="mt-3 flex gap-2">
+            {liked.map((item) => (
+              <button key={item.slice(0, 48)} type="button" onClick={() => setReference(item)} aria-label="Use this memory">
+                <img src={item} alt="" className="h-16 w-16 object-cover" />
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </section>
+
       <form
         className="mt-8"
         onSubmit={(event) => {
@@ -263,7 +347,7 @@ export function ImagingBay() {
           disabled={busy}
           className="bay-press mt-4 min-h-12 px-6 text-xs uppercase disabled:opacity-40"
         >
-          {busy ? "Exposing" : "Expose"}
+          {busy ? "Engendering" : reference ? "Engender" : "Expose"}
         </button>
       </form>
 
@@ -315,6 +399,7 @@ export function ImagingBay() {
             }
             setCredits((count) => count - KEEP_COST);
             setKeptUrl(imageUrl);
+            setLiked((current) => [imageUrl, ...current.filter((item) => item !== imageUrl)].slice(0, 4));
             setFileNote("Kept. Download the file, or copy it.");
           }}
           onDownload={() => void savePlate("download")}

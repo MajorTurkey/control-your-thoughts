@@ -1,0 +1,11 @@
+node_modules
+.vercel
+.grok
+screenshots
+artifacts
+public/imaging-bay.zip
+public/__grok
+.node_modules.lock
+*.log
+AGENTS.md
+AGENTS.project.md

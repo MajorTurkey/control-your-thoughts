@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "Fraunces", "Iowan Old Style", Palatino, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-void: #07090c;
+  --color-hull: #14191f;
+  --color-panel: #1c242c;
+  --color-phosphor: #9fd6c2;
+  --color-paper: #e7e2d6;
+  --color-mute: #a3aaa2;
+  --color-line: #31403a;
+  --color-danger: #e0a090;
+}
+
+@layer base {
+  html {
+    background: var(--color-void);
+    color: var(--color-paper);
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(
+        ellipse 70% 40% at 100% -8%,
+        color-mix(in oklab, var(--color-phosphor) 14%, transparent),
+        transparent 55%
+      ),
+      var(--color-void);
+    font-family: var(--font-mono);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-phosphor) 35%, transparent);
+    color: var(--color-paper);
+  }
+}
+
+.reticle {
+  width: 4.5rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-phosphor);
+  border-radius: 999px;
+  position: relative;
+}
+
+.reticle::before,
+.reticle::after {
+  content: "";
+  position: absolute;
+  background: var(--color-phosphor);
+}
+
+.reticle::before {
+  width: 1px;
+  height: 0.45rem;
+  left: 50%;
+  top: -0.22rem;
+}
+
+.reticle::after {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-phosphor) 22%, transparent);
+}
+
+.lamp {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--color-phosphor);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--color-phosphor) 70%, transparent);
+}
+
+.frame-ratio-1-1 {
+  aspect-ratio: 1 / 1;
+}
+.frame-ratio-16-9 {
+  aspect-ratio: 16 / 9;
+}
+.frame-ratio-2-3 {
+  aspect-ratio: 2 / 3;
+}
+.frame-ratio-21-9 {
+  aspect-ratio: 21 / 9;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lamp {
+    animation: lamp 2.8s ease-in-out infinite;
+  }
+
+  @keyframes lamp {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.35;
+    }
+  }
+}

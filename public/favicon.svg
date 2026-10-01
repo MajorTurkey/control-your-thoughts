@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" role="img" aria-label="Imaging Bay">
+  <rect width="16" height="16" rx="3" fill="#07090c"/>
+  <path fill="#9fd6c2" d="M2 2h5v2H4v3H2z"/>
+  <path fill="#9fd6c2" d="M14 2H9v2h3v3h2z"/>
+  <path fill="#9fd6c2" d="M2 14h5v-2H4V9H2z"/>
+  <path fill="#9fd6c2" d="M14 14H9v-2h3V9h2z"/>
+  <rect x="6" y="6" width="4" height="4" rx="2" fill="#e7e2d6"/>
+</svg>

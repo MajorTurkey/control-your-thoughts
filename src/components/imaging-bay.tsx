@@ -121,7 +121,7 @@ export function ImagingBay() {
         Imaging Bay
       </h1>
       <p className="font-display mt-4 max-w-xl text-xl leading-snug text-pretty text-mute italic">
-        You choose the plate. You do not name the style. The sentence is only what is in the frame.
+        Choose a plate. Write only what is in the frame. The manner is already on file.
       </p>
 
       <section className="mt-10" aria-labelledby="plate-label">
@@ -207,7 +207,7 @@ export function ImagingBay() {
           className="w-full resize-y border border-line bg-hull px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-phosphor"
         />
         <p className="mt-2 text-sm leading-relaxed text-mute">
-          Subject only. Light, lens, and medium already sit in the plate you picked.
+          The subject only. Light and medium are already chosen.
         </p>
         <button
           type="submit"
@@ -250,8 +250,8 @@ export function ImagingBay() {
             What is missing. What should change.
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-mute">
-            Short clauses. Full sentences. Both work. The next exposure keeps this plate unless you
-            change it.
+            Say what is missing, what should change, and what to leave out. The next plate keeps
+            this manner unless you change it.
           </p>
           <ul className="mt-4 space-y-3">
             {LOG_LINES.map((line) => (
@@ -318,7 +318,16 @@ export function ImagingBay() {
       ) : null}
 
       <footer className="mt-12 border-t border-line pt-4 text-xs tracking-wide text-mute">
-        You speak. It exposes. You correct. That is the loop.
+        <p>You speak. The bay exposes. You correct the record.</p>
+        <p className="mt-2">
+          Created by{" "}
+          <a
+            href="https://majorturkey.org"
+            className="text-phosphor underline decoration-line underline-offset-4"
+          >
+            MajorTurkey
+          </a>
+        </p>
       </footer>
     </main>
   );

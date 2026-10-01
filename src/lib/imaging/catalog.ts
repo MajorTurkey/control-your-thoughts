@@ -3,7 +3,7 @@ export const STYLES = [
     id: "photograph",
     index: "01",
     name: "Photograph",
-    spare: "Skip realism.",
+    spare: "A plain photograph. You need not write realism.",
     directive:
       "A straightforward color photograph taken with a normal lens. Real materials, natural color, unstyled light, sharp where a camera would be sharp. Not a painting, not a cartoon, not a poster, not a render.",
   },
@@ -11,7 +11,7 @@ export const STYLES = [
     id: "cinema",
     index: "02",
     name: "Cinema",
-    spare: "Skip cinematic.",
+    spare: "One frame from a film. You need not write cinematic.",
     directive:
       "A motion-picture still from a carefully lit scene. Anamorphic framing, shallow focus, practical lights, restrained grain. One shot, not a poster and not a photograph of a screen.",
   },
@@ -19,7 +19,7 @@ export const STYLES = [
     id: "field",
     index: "03",
     name: "Field",
-    spare: "Skip documentary.",
+    spare: "An instrument record. You need not write documentary.",
     directive:
       "A scientific field photograph. Even, honest light, color as the eye would record it, detail held across the subject, the plainness of an instrument record.",
   },
@@ -27,7 +27,7 @@ export const STYLES = [
     id: "concept",
     index: "04",
     name: "Concept",
-    spare: "Skip concept art.",
+    spare: "A painted design for a film. You need not write concept art.",
     directive:
       "Production concept art painted for a film. Designed forms, painted light, one clear idea, visible brush and value structure. Not a photograph.",
   },
@@ -35,7 +35,7 @@ export const STYLES = [
     id: "ink",
     index: "05",
     name: "Ink",
-    spare: "Skip illustration.",
+    spare: "Line and a little wash. You need not write illustration.",
     directive:
       "An ink illustration on warm paper. Decisive line, a little wash, lots of unmarked paper. Editorial, not photoreal.",
   },
@@ -43,7 +43,7 @@ export const STYLES = [
     id: "miniature",
     index: "06",
     name: "Miniature",
-    spare: "Skip 3D render.",
+    spare: "A real small model, photographed. Not a digital picture.",
     directive:
       "A close photograph of a physical scale model. Real materials under studio light, shallow macro focus, the smallness visible in how the light falls. Not a digital render.",
   },
@@ -51,7 +51,7 @@ export const STYLES = [
     id: "night",
     index: "07",
     name: "Night",
-    spare: "Skip moody light.",
+    spare: "True night. You need not write moody.",
     directive:
       "A nighttime photograph. Real darkness, lights that bloom the way a lens blooms, shadow that still holds shape. Not a blue color grade laid over daylight.",
   },
@@ -59,9 +59,65 @@ export const STYLES = [
     id: "schematic",
     index: "08",
     name: "Schematic",
-    spare: "Skip blueprint.",
+    spare: "An engineering plate. You need not write blueprint.",
     directive:
       "A precise technical drawing on a pale ground. Clean orthographic line, even weight, no photographic texture, no dramatic light. A plate from an engineering folio.",
+  },
+  {
+    id: "soft-light",
+    index: "09",
+    name: "Soft Light",
+    spare: "Light that has already bounced. A quiet, costly still.",
+    directive:
+      "A high-end path-traced still. Light has bounced more than once: soft contact shadows, gentle caustics in glass, no single harsh spotlight. Plausible materials. Not a photograph, not a painting, not a game screenshot.",
+  },
+  {
+    id: "surfaces",
+    index: "10",
+    name: "Surfaces",
+    spare: "Metal, glass, skin, and cloth, each behaving correctly.",
+    directive:
+      "A high-end material study. Physically based surfaces: metal with a real roughness, glass with thickness and refraction, skin or wax with subsurface light, cloth with a visible weave. Even studio light so the material is the subject. Not a flat illustration.",
+  },
+  {
+    id: "studio",
+    index: "11",
+    name: "Studio",
+    spare: "One subject, on a clean stage, lit on purpose.",
+    directive:
+      "A high-end studio still of a single subject on a clean stage. Large soft lights, a quiet background, the kind of light used for a catalog of fine objects. Not a street photograph and not a painted poster.",
+  },
+  {
+    id: "live-still",
+    index: "12",
+    name: "Live Still",
+    spare: "Sharp, as if the simulation is running now.",
+    directive:
+      "A high-end real-time ray-traced still, as from a modern game engine paused on a beautiful frame. Sharp geometry, lively reflections, dense detail, a little of the crispness of a live picture. Not an overnight film render and not a photograph.",
+  },
+  {
+    id: "cartoon",
+    index: "13",
+    name: "Cartoon",
+    spare: "Flat color and a sure outline. Not a photograph.",
+    directive:
+      "A high-end animated still. Flat, designed color, a clean ink edge, shapes drawn on purpose. The finish of a prestige cartoon frame, not a photograph, not a 3D product render, and not a messy sketch.",
+  },
+  {
+    id: "atmosphere",
+    index: "14",
+    name: "Atmosphere",
+    spare: "Fog, smoke, or weather you can see into.",
+    directive:
+      "A high-end volumetric still. Fog, smoke, or weather rendered as real density the light passes through. Beams, soft edges, depth you can see into. Not a flat gray overlay and not a photograph of steam on a lens.",
+  },
+  {
+    id: "archive",
+    index: "15",
+    name: "Archive",
+    spare: "A place put back together from recorded views.",
+    directive:
+      "A high-end reconstruction of a real place from many recorded views. The quiet, slightly assembled look of a neural capture: consistent surfaces, soft reconstructed detail, no designed studio glamour. Not a fresh photograph and not a cartoon.",
   },
 ] as const;
 

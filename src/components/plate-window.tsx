@@ -35,12 +35,12 @@ export function PlateWindow({
         role="dialog"
         aria-modal="true"
         aria-label="Plate window"
-        style={{ "--tint": "#f2c6d6" } as CSSProperties}
+        style={{ "--tint": "#e8d5a3" } as CSSProperties}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between gap-3">
           <p className="bay-label text-xs">{label}</p>
-          <p className="bay-label text-xs text-butter">{credits} credits</p>
+          <p className="bay-label text-xs text-phosphor">{credits} credits</p>
         </div>
         <img src={url} alt={label} className="max-h-[68vh] w-full bg-void object-contain" />
         {note ? <p className="mt-3 text-sm text-paper">{note}</p> : null}
@@ -65,7 +65,7 @@ export function PlateWindow({
         </div>
         {short ? (
           <div className="mt-4">
-            <p className="bay-label text-xs text-peach">Credit packs</p>
+            <p className="bay-label text-xs text-phosphor">Credit packs</p>
             <PackRow onDraw={onDraw} />
           </div>
         ) : null}
@@ -82,7 +82,7 @@ export function PackRow({ onDraw }: { onDraw: (pack: Pack) => void }) {
           key={pack.id}
           type="button"
           className="bay-box px-2 py-2 text-left"
-          style={{ "--tint": "#efe0a8" } as CSSProperties}
+          style={{ "--tint": "#d4b056" } as CSSProperties}
           onClick={() => onDraw(pack)}
         >
           <span className="bay-name block text-base">{pack.name}</span>

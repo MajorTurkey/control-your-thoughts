@@ -213,22 +213,22 @@ export function ImagingBay() {
     <main className="mx-auto w-full max-w-3xl px-5 pt-10 pb-20">
       <div className="reticle mb-5" aria-hidden="true" />
       <p className="bay-kicker text-xs uppercase">Survey vessel · Imaging bay</p>
-      <div className="mt-3 flex items-center gap-2 text-xs tracking-widest text-lilac uppercase">
+      <div className="mt-3 flex items-center gap-2 text-xs tracking-widest text-paper uppercase">
         <span className="lamp" aria-hidden="true" />
         <span className="bay-kicker">Bay live</span>
       </div>
       <h1 className="bay-title font-display mt-4 text-5xl leading-none font-medium text-balance">
         Imaging Bay
       </h1>
-      <p className="font-display mt-4 max-w-xl text-lg leading-snug text-pretty text-lilac">
+      <p className="font-display mt-4 max-w-xl text-lg leading-snug text-pretty text-paper">
         The plate is the manner. The sentence is only the subject.
       </p>
-      <p className="font-display mt-3 max-w-xl text-lg leading-snug text-pretty text-blush">
+      <p className="font-display mt-3 max-w-xl text-lg leading-snug text-pretty text-phosphor">
         GPT Image 2.5 engenders the plate. Take a reference. Those desks also edit, take
         references, and remember what you liked.
       </p>
       <div className="mt-5">
-        <p className="bay-label text-xs text-butter">{credits} credits</p>
+        <p className="bay-label text-xs text-phosphor">{credits} credits</p>
         <PackRow onDraw={(pack) => setCredits((count) => count + pack.credits)} />
       </div>
 
@@ -265,7 +265,7 @@ export function ImagingBay() {
         <div role="radiogroup" aria-label="Frame shape" className="grid grid-cols-4 gap-3">
           {ASPECTS.map((item, index) => {
             const on = item.id === aspect;
-            const tint = ["#c5d9f5", "#f3cbb8", "#d7c6f2", "#c4eee6"][index] ?? "#d7c6f2";
+            const tint = ["#e8d5a3", "#d4b056", "#f0e6c8", "#c9a35a"][index] ?? "#e8d5a3";
             return (
               <button
                 key={item.id}
@@ -285,7 +285,7 @@ export function ImagingBay() {
       </section>
 
       <section className="mt-8" aria-labelledby="reference-label">
-        <h2 id="reference-label" className="bay-kicker mb-3 text-xs text-blush uppercase">
+        <h2 id="reference-label" className="bay-kicker mb-3 text-xs text-phosphor uppercase">
           Reference
         </h2>
         <div className="flex flex-wrap items-center gap-3">
@@ -304,7 +304,7 @@ export function ImagingBay() {
             />
           </label>
           {reference ? (
-            <button type="button" className="bay-label text-xs text-peach" onClick={() => setReference("")}>
+            <button type="button" className="bay-label text-xs text-phosphor" onClick={() => setReference("")}>
               Clear
             </button>
           ) : null}
@@ -330,7 +330,7 @@ export function ImagingBay() {
           void expose();
         }}
       >
-        <label htmlFor={subjectId} className="bay-label mb-2 block text-xs text-peach">
+        <label htmlFor={subjectId} className="bay-label mb-2 block text-xs text-phosphor">
           What is in the frame
         </label>
         <textarea
@@ -340,7 +340,7 @@ export function ImagingBay() {
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
           placeholder="A wet street at dusk, one yellow window lit, a bicycle on the rail."
-          className="bay-well w-full resize-y border border-line bg-hull px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-blush"
+          className="bay-well w-full resize-y border border-line bg-hull px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-phosphor"
         />
         <button
           type="submit"
@@ -353,7 +353,7 @@ export function ImagingBay() {
 
       {shown ? (
         <section className="mt-10" aria-live="polite">
-          <div className="bay-box mb-0 border-lilac p-3" style={{ "--tint": "#d7c6f2" } as CSSProperties}>
+          <div className="bay-box mb-0 border-phosphor p-3" style={{ "--tint": "#e8d5a3" } as CSSProperties}>
             <div className="mb-3 flex items-center justify-between gap-3 text-xs tracking-widest text-mute uppercase">
               <span>Aperture</span>
               <span className="text-phosphor">{plateLabel || selected.name}</span>
@@ -412,8 +412,8 @@ export function ImagingBay() {
       ) : null}
 
       {logOpen ? (
-        <section className="bay-box mt-8 px-5 py-6" style={{ "--tint": "#c4eee6" } as CSSProperties}>
-          <p className="bay-label text-xs text-aqua">Mark the proof</p>
+        <section className="bay-box mt-8 px-5 py-6" style={{ "--tint": "#d4b056" } as CSSProperties}>
+          <p className="bay-label text-xs text-phosphor">Mark the proof</p>
           <ul className="mt-4 space-y-3">
             {LOG_LINES.map((line) => (
               <li key={line} className="border-l border-phosphor pl-3">
@@ -448,13 +448,13 @@ export function ImagingBay() {
               placeholder="cars, signs, extra people"
             />
             <label className="block">
-              <span className="bay-label mb-2 block text-xs text-aqua">Your words</span>
+              <span className="bay-label mb-2 block text-xs text-phosphor">Your words</span>
               <textarea
                 rows={3}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder="Keep the yellow window. Camera at waist height."
-                className="w-full resize-y bay-well border border-line bg-void px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-aqua"
+                className="w-full resize-y bay-well border border-line bg-void px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-phosphor"
               />
             </label>
           </div>
@@ -483,7 +483,7 @@ export function ImagingBay() {
           Created by{" "}
           <a
             href="https://majorturkey.org"
-            className="text-blush underline decoration-line underline-offset-4"
+            className="text-phosphor underline decoration-line underline-offset-4"
           >
             MajorTurkey
           </a>
@@ -507,14 +507,14 @@ function Field({
   const id = useId();
   return (
     <label htmlFor={id} className="block">
-      <span className="bay-label mb-2 block text-xs text-peach">{label}</span>
+      <span className="bay-label mb-2 block text-xs text-phosphor">{label}</span>
       <input
         id={id}
         type="text"
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="bay-well w-full border border-line bg-void px-4 py-3 text-base text-paper outline-none placeholder:text-mute focus:border-peach"
+        className="bay-well w-full border border-line bg-void px-4 py-3 text-base text-paper outline-none placeholder:text-mute focus:border-phosphor"
       />
     </label>
   );

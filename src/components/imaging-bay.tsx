@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, type CSSProperties } from "react";
 import {
   ASPECTS,
   LOG_LINES,
@@ -112,23 +112,20 @@ export function ImagingBay() {
   return (
     <main className="mx-auto w-full max-w-3xl px-5 pt-10 pb-20">
       <div className="reticle mb-5" aria-hidden="true" />
-      <p className="text-xs tracking-widest text-phosphor uppercase">Survey vessel · Imaging bay</p>
-      <div className="mt-3 flex items-center gap-2 text-xs tracking-widest text-mute uppercase">
+      <p className="bay-kicker text-xs uppercase">Survey vessel · Imaging bay</p>
+      <div className="mt-3 flex items-center gap-2 text-xs tracking-widest text-lilac uppercase">
         <span className="lamp" aria-hidden="true" />
-        <span>Bay live</span>
+        <span className="bay-kicker">Bay live</span>
       </div>
-      <h1 className="font-display mt-4 text-5xl leading-none font-medium text-balance text-paper">
+      <h1 className="bay-title font-display mt-4 text-5xl leading-none font-medium text-balance">
         Imaging Bay
       </h1>
-      <p className="font-display mt-4 max-w-xl text-xl leading-snug text-pretty text-mute italic">
-        Choose a plate. Write only what is in the frame. The manner is already on file.
-      </p>
 
       <section className="mt-10" aria-labelledby="plate-label">
-        <h2 id="plate-label" className="mb-3 text-xs tracking-widest text-mute uppercase">
+        <h2 id="plate-label" className="bay-kicker mb-3 text-xs uppercase">
           Plate
         </h2>
-        <div role="radiogroup" aria-label="Image plate" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div role="radiogroup" aria-label="Image plate" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {STYLES.map((style) => {
             const on = style.id === styleId;
             return (
@@ -138,18 +135,12 @@ export function ImagingBay() {
                 role="radio"
                 aria-checked={on}
                 onClick={() => setStyleId(style.id)}
-                className={
-                  "min-h-11 border px-3 py-3 text-left transition-colors duration-200 " +
-                  (on
-                    ? "border-phosphor bg-hull text-paper"
-                    : "border-line bg-void text-mute hover:border-phosphor hover:text-paper")
-                }
+                className={"bay-box min-h-11 px-3 py-3 text-left " + (on ? "bay-box-on" : "")}
+                style={{ "--tint": style.tint } as CSSProperties}
               >
-                <span className="block text-xs tracking-widest text-phosphor">{style.index}</span>
-                <span className="font-display mt-1 block text-lg leading-tight text-paper">
-                  {style.name}
-                </span>
-                <span className="mt-1 block text-xs leading-snug text-pretty">{style.spare}</span>
+                <span className="bay-index block text-xs">{style.index}</span>
+                <span className="bay-name mt-1 block text-lg">{style.name}</span>
+                <span className="bay-spare mt-1 block text-xs">{style.spare}</span>
               </button>
             );
           })}
@@ -157,12 +148,13 @@ export function ImagingBay() {
       </section>
 
       <section className="mt-8" aria-labelledby="frame-label">
-        <h2 id="frame-label" className="mb-3 text-xs tracking-widest text-mute uppercase">
+        <h2 id="frame-label" className="bay-kicker mb-3 text-xs uppercase">
           Frame
         </h2>
-        <div role="radiogroup" aria-label="Frame shape" className="grid grid-cols-4 gap-2">
-          {ASPECTS.map((item) => {
+        <div role="radiogroup" aria-label="Frame shape" className="grid grid-cols-4 gap-3">
+          {ASPECTS.map((item, index) => {
             const on = item.id === aspect;
+            const tint = ["#c5d9f5", "#f3cbb8", "#d7c6f2", "#c4eee6"][index] ?? "#d7c6f2";
             return (
               <button
                 key={item.id}
@@ -170,17 +162,11 @@ export function ImagingBay() {
                 role="radio"
                 aria-checked={on}
                 onClick={() => setAspect(item.id)}
-                className={
-                  "min-h-11 border px-2 py-2 text-center transition-colors duration-200 " +
-                  (on
-                    ? "border-phosphor bg-hull text-paper"
-                    : "border-line bg-void text-mute hover:border-phosphor hover:text-paper")
-                }
+                className={"bay-box min-h-11 px-2 py-2 text-center " + (on ? "bay-box-on" : "")}
+                style={{ "--tint": tint } as CSSProperties}
               >
-                <span className="block text-sm text-paper">{item.name}</span>
-                <span className="mt-1 block text-xs tracking-wide text-mute uppercase">
-                  {item.spare}
-                </span>
+                <span className="bay-name block text-sm">{item.name}</span>
+                <span className="bay-spare mt-1 block text-xs">{item.spare}</span>
               </button>
             );
           })}
@@ -194,7 +180,7 @@ export function ImagingBay() {
           void expose();
         }}
       >
-        <label htmlFor={subjectId} className="mb-2 block text-xs tracking-widest text-mute uppercase">
+        <label htmlFor={subjectId} className="bay-label mb-2 block text-xs text-peach">
           What is in the frame
         </label>
         <textarea
@@ -204,15 +190,12 @@ export function ImagingBay() {
           value={subject}
           onChange={(event) => setSubject(event.target.value)}
           placeholder="A wet street at dusk, one yellow window lit, a bicycle on the rail."
-          className="w-full resize-y border border-line bg-hull px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-phosphor"
+          className="bay-well w-full resize-y border border-line bg-hull px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-blush"
         />
-        <p className="mt-2 text-sm leading-relaxed text-mute">
-          The subject only. Light and medium are already chosen.
-        </p>
         <button
           type="submit"
           disabled={busy}
-          className="mt-4 min-h-12 bg-phosphor px-6 text-xs tracking-widest text-void uppercase disabled:opacity-40"
+          className="bay-press mt-4 min-h-12 px-6 text-xs uppercase disabled:opacity-40"
         >
           {busy ? "Exposing" : "Expose"}
         </button>
@@ -220,7 +203,7 @@ export function ImagingBay() {
 
       {shown ? (
         <section className="mt-10" aria-live="polite">
-          <div className="border border-phosphor bg-hull p-3">
+          <div className="bay-box mb-0 border-lilac p-3" style={{ "--tint": "#d7c6f2" } as CSSProperties}>
             <div className="mb-3 flex items-center justify-between gap-3 text-xs tracking-widest text-mute uppercase">
               <span>Aperture</span>
               <span className="text-phosphor">{plateLabel || selected.name}</span>
@@ -244,15 +227,8 @@ export function ImagingBay() {
       ) : null}
 
       {logOpen ? (
-        <section className="mt-8 border border-line bg-panel px-5 py-6">
-          <p className="text-xs tracking-widest text-phosphor uppercase">Mark the proof</p>
-          <h2 className="font-display mt-2 text-3xl leading-tight font-medium text-balance">
-            What is missing. What should change.
-          </h2>
-          <p className="mt-2 text-sm leading-relaxed text-mute">
-            Say what is missing, what should change, and what to leave out. The next plate keeps
-            this manner unless you change it.
-          </p>
+        <section className="bay-box mt-8 px-5 py-6" style={{ "--tint": "#c4eee6" } as CSSProperties}>
+          <p className="bay-label text-xs text-aqua">Mark the proof</p>
           <ul className="mt-4 space-y-3">
             {LOG_LINES.map((line) => (
               <li key={line} className="border-l border-phosphor pl-3">
@@ -287,13 +263,13 @@ export function ImagingBay() {
               placeholder="cars, signs, extra people"
             />
             <label className="block">
-              <span className="mb-2 block text-xs tracking-widest text-mute uppercase">Your words</span>
+              <span className="bay-label mb-2 block text-xs text-aqua">Your words</span>
               <textarea
                 rows={3}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder="Keep the yellow window. Camera at waist height."
-                className="w-full resize-y border border-line bg-void px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-phosphor"
+                className="w-full resize-y bay-well border border-line bg-void px-4 py-3 text-base leading-relaxed text-paper outline-none placeholder:text-mute focus:border-aqua"
               />
             </label>
           </div>
@@ -302,14 +278,14 @@ export function ImagingBay() {
               type="button"
               disabled={busy}
               onClick={() => void expose()}
-              className="min-h-12 bg-phosphor px-6 text-xs tracking-widest text-void uppercase disabled:opacity-40"
+              className="bay-press min-h-12 px-6 text-xs uppercase disabled:opacity-40"
             >
               {busy ? "Exposing" : "Expose again"}
             </button>
             <button
               type="button"
               onClick={resetLog}
-              className="min-h-12 border border-line px-6 text-xs tracking-widest text-paper uppercase"
+              className="bay-box min-h-12 px-6 text-xs uppercase"
             >
               Start over
             </button>
@@ -318,12 +294,11 @@ export function ImagingBay() {
       ) : null}
 
       <footer className="mt-12 border-t border-line pt-4 text-xs tracking-wide text-mute">
-        <p>You speak. The bay exposes. You correct the record.</p>
-        <p className="mt-2">
+        <p>
           Created by{" "}
           <a
             href="https://majorturkey.org"
-            className="text-phosphor underline decoration-line underline-offset-4"
+            className="text-blush underline decoration-line underline-offset-4"
           >
             MajorTurkey
           </a>
@@ -347,14 +322,14 @@ function Field({
   const id = useId();
   return (
     <label htmlFor={id} className="block">
-      <span className="mb-2 block text-xs tracking-widest text-mute uppercase">{label}</span>
+      <span className="bay-label mb-2 block text-xs text-peach">{label}</span>
       <input
         id={id}
         type="text"
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full border border-line bg-void px-4 py-3 text-base text-paper outline-none placeholder:text-mute focus:border-phosphor"
+        className="bay-well w-full border border-line bg-void px-4 py-3 text-base text-paper outline-none placeholder:text-mute focus:border-peach"
       />
     </label>
   );

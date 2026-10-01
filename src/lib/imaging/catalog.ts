@@ -3,7 +3,8 @@ export const STYLES = [
     id: "photograph",
     index: "01",
     name: "Photograph",
-    spare: "A plain photograph. You need not write realism.",
+    tint: "#f2c6d6",
+    spare: "Realism",
     directive:
       "A straightforward color photograph taken with a normal lens. Real materials, natural color, unstyled light, sharp where a camera would be sharp. Not a painting, not a cartoon, not a poster, not a render.",
   },
@@ -11,7 +12,8 @@ export const STYLES = [
     id: "cinema",
     index: "02",
     name: "Cinema",
-    spare: "One frame from a film. You need not write cinematic.",
+    tint: "#d7c6f2",
+    spare: "Film",
     directive:
       "A motion-picture still from a carefully lit scene. Anamorphic framing, shallow focus, practical lights, restrained grain. One shot, not a poster and not a photograph of a screen.",
   },
@@ -19,7 +21,8 @@ export const STYLES = [
     id: "field",
     index: "03",
     name: "Field",
-    spare: "An instrument record. You need not write documentary.",
+    tint: "#c5d9f5",
+    spare: "Record",
     directive:
       "A scientific field photograph. Even, honest light, color as the eye would record it, detail held across the subject, the plainness of an instrument record.",
   },
@@ -27,7 +30,8 @@ export const STYLES = [
     id: "concept",
     index: "04",
     name: "Concept",
-    spare: "A painted design for a film. You need not write concept art.",
+    tint: "#f3cbb8",
+    spare: "Painted",
     directive:
       "Production concept art painted for a film. Designed forms, painted light, one clear idea, visible brush and value structure. Not a photograph.",
   },
@@ -35,7 +39,8 @@ export const STYLES = [
     id: "ink",
     index: "05",
     name: "Ink",
-    spare: "Line and a little wash. You need not write illustration.",
+    tint: "#efe0a8",
+    spare: "Line",
     directive:
       "An ink illustration on warm paper. Decisive line, a little wash, lots of unmarked paper. Editorial, not photoreal.",
   },
@@ -43,7 +48,8 @@ export const STYLES = [
     id: "miniature",
     index: "06",
     name: "Miniature",
-    spare: "A real small model, photographed. Not a digital picture.",
+    tint: "#c4eee6",
+    spare: "Model",
     directive:
       "A close photograph of a physical scale model. Real materials under studio light, shallow macro focus, the smallness visible in how the light falls. Not a digital render.",
   },
@@ -51,7 +57,8 @@ export const STYLES = [
     id: "night",
     index: "07",
     name: "Night",
-    spare: "True night. You need not write moody.",
+    tint: "#c9c6f2",
+    spare: "Moody",
     directive:
       "A nighttime photograph. Real darkness, lights that bloom the way a lens blooms, shadow that still holds shape. Not a blue color grade laid over daylight.",
   },
@@ -59,7 +66,8 @@ export const STYLES = [
     id: "schematic",
     index: "08",
     name: "Schematic",
-    spare: "An engineering plate. You need not write blueprint.",
+    tint: "#d5e7c8",
+    spare: "Blueprint",
     directive:
       "A precise technical drawing on a pale ground. Clean orthographic line, even weight, no photographic texture, no dramatic light. A plate from an engineering folio.",
   },
@@ -67,7 +75,8 @@ export const STYLES = [
     id: "soft-light",
     index: "09",
     name: "Soft Light",
-    spare: "Light that has already bounced. A quiet, costly still.",
+    tint: "#f6d7e8",
+    spare: "Bounce",
     directive:
       "A high-end path-traced still. Light has bounced more than once: soft contact shadows, gentle caustics in glass, no single harsh spotlight. Plausible materials. Not a photograph, not a painting, not a game screenshot.",
   },
@@ -75,7 +84,8 @@ export const STYLES = [
     id: "surfaces",
     index: "10",
     name: "Surfaces",
-    spare: "Metal, glass, skin, and cloth, each behaving correctly.",
+    tint: "#f2d6b8",
+    spare: "Material",
     directive:
       "A high-end material study. Physically based surfaces: metal with a real roughness, glass with thickness and refraction, skin or wax with subsurface light, cloth with a visible weave. Even studio light so the material is the subject. Not a flat illustration.",
   },
@@ -83,7 +93,8 @@ export const STYLES = [
     id: "studio",
     index: "11",
     name: "Studio",
-    spare: "One subject, on a clean stage, lit on purpose.",
+    tint: "#e7d4f6",
+    spare: "Stage",
     directive:
       "A high-end studio still of a single subject on a clean stage. Large soft lights, a quiet background, the kind of light used for a catalog of fine objects. Not a street photograph and not a painted poster.",
   },
@@ -91,7 +102,8 @@ export const STYLES = [
     id: "live-still",
     index: "12",
     name: "Live Still",
-    spare: "Sharp, as if the simulation is running now.",
+    tint: "#bfe3f6",
+    spare: "Running",
     directive:
       "A high-end real-time ray-traced still, as from a modern game engine paused on a beautiful frame. Sharp geometry, lively reflections, dense detail, a little of the crispness of a live picture. Not an overnight film render and not a photograph.",
   },
@@ -99,7 +111,8 @@ export const STYLES = [
     id: "cartoon",
     index: "13",
     name: "Cartoon",
-    spare: "Flat color and a sure outline. Not a photograph.",
+    tint: "#f6c9c4",
+    spare: "Flat color",
     directive:
       "A high-end animated still. Flat, designed color, a clean ink edge, shapes drawn on purpose. The finish of a prestige cartoon frame, not a photograph, not a 3D product render, and not a messy sketch.",
   },
@@ -107,7 +120,8 @@ export const STYLES = [
     id: "atmosphere",
     index: "14",
     name: "Atmosphere",
-    spare: "Fog, smoke, or weather you can see into.",
+    tint: "#c9e8f2",
+    spare: "Weather",
     directive:
       "A high-end volumetric still. Fog, smoke, or weather rendered as real density the light passes through. Beams, soft edges, depth you can see into. Not a flat gray overlay and not a photograph of steam on a lens.",
   },
@@ -115,7 +129,8 @@ export const STYLES = [
     id: "archive",
     index: "15",
     name: "Archive",
-    spare: "A place put back together from recorded views.",
+    tint: "#e4d8c4",
+    spare: "Rebuilt",
     directive:
       "A high-end reconstruction of a real place from many recorded views. The quiet, slightly assembled look of a neural capture: consistent surfaces, soft reconstructed detail, no designed studio glamour. Not a fresh photograph and not a cartoon.",
   },

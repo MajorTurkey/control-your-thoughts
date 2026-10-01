@@ -17,7 +17,7 @@ export function TitlePage({ onEnter }: { onEnter: () => void }) {
       onEnter();
     } catch (error) {
       sessionStorage.removeItem("imaging-bay-entered");
-      setNote(error instanceof Error ? error.message : "Sign-in did not open.");
+      setNote(error instanceof Error ? error.message : "Sign-in did not open. Try again, or continue as a guest.");
     }
   }
 
@@ -27,7 +27,7 @@ export function TitlePage({ onEnter }: { onEnter: () => void }) {
       <p className="bay-kicker text-xs uppercase">Survey vessel</p>
       <h1 className="bay-title font-display mt-4 text-6xl leading-none font-medium">Imaging Bay</h1>
       <p className="font-display mt-4 text-lg leading-snug text-pretty text-lilac">
-        The plate is the manner. The sentence is only the subject.
+        The plate sets the look. In the box, write only what is in the frame.
       </p>
       <div className="mt-10 grid gap-2">
         {GROK_PROVIDERS.map((provider) => (
@@ -43,7 +43,7 @@ export function TitlePage({ onEnter }: { onEnter: () => void }) {
         <button
           type="button"
           className="bay-box min-h-12 px-4 text-xs uppercase"
-          style={{ "--tint": "#c4eee6" } as CSSProperties}
+          style={{ "--tint": "#3dff9a" } as CSSProperties}
           onClick={() => {
             sessionStorage.setItem("imaging-bay-entered", "guest");
             onEnter();

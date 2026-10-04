@@ -156,15 +156,24 @@ export function ImagingBay() {
       }
       const blob = await (await fetch(source)).blob();
       if (kind === "download") {
-        const href = URL.createObjectURL(blob);
+        const kindOfFile = blob.type || "image/jpeg";
+        const ext = kindOfFile.includes("png") ? "png" : kindOfFile.includes("webp") ? "webp" : "jpg";
+        const name = `imaging-bay-${Date.now()}.${ext}`;
+        const file = new File([blob], name, { type: kindOfFile });
+        const href = URL.createObjectURL(file);
         const link = document.createElement("a");
         link.href = href;
-        link.download = "imaging-bay.jpg";
+        link.download = name;
+        link.rel = "noopener";
+        link.style.display = "none";
         document.body.appendChild(link);
         link.click();
-        link.remove();
-        URL.revokeObjectURL(href);
-        setFileNote("Filed.");
+        // Keep the file address alive: revoking it right away cancels the save on Android Chrome.
+        window.setTimeout(() => {
+          link.remove();
+          URL.revokeObjectURL(href);
+        }, 60_000);
+        setFileNote(`Filed as ${name}. Check Downloads.`);
         return;
       }
       const type = blob.type || "image/png";

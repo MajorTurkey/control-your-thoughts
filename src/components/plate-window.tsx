@@ -87,7 +87,7 @@ export function PackRow({ onDraw }: { onDraw: (pack: Pack) => void }) {
         >
           <span className="bay-name block text-base">{pack.name}</span>
           <span className="bay-spare mt-1 block text-xs">
-            {pack.credits} · {pack.mark}
+            {pack.credits} credits
           </span>
         </button>
       ))}

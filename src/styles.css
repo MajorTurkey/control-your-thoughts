@@ -225,3 +225,144 @@
     }
   }
 }
+
+.turkey-stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: end center;
+  overflow: hidden;
+  padding-bottom: 8%;
+}
+
+.turkey {
+  width: min(70%, 220px);
+  height: auto;
+  overflow: visible;
+}
+
+.turkey-tail ellipse {
+  fill: #b8922a;
+  stroke: #e8d5a3;
+  stroke-width: 1.5;
+}
+
+.turkey-body,
+.turkey-head circle,
+.turkey-wing {
+  fill: #6b3a1f;
+}
+
+.turkey-wing {
+  fill: #4a2614;
+}
+
+.turkey-neck,
+.turkey-leg path {
+  fill: none;
+  stroke: #c4a574;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.turkey-snood {
+  fill: none;
+  stroke: #8b2e2e;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.turkey-beak {
+  fill: #d4b056;
+}
+
+.turkey-eye {
+  fill: #0a0f18;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .turkey {
+    animation: turkey-pace 3.6s ease-in-out infinite;
+  }
+
+  .turkey-walk {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: turkey-bob 0.55s ease-in-out infinite;
+  }
+
+  .turkey-tail {
+    transform-box: fill-box;
+    transform-origin: 80% 70%;
+    animation: turkey-fan 1.1s ease-in-out infinite;
+  }
+
+  .turkey-head {
+    transform-box: fill-box;
+    transform-origin: 20% 90%;
+    animation: turkey-peck 0.55s ease-in-out infinite;
+  }
+
+  .turkey-leg {
+    transform-box: fill-box;
+    transform-origin: 50% 0;
+  }
+
+  .turkey-leg-a {
+    animation: turkey-step 0.55s ease-in-out infinite;
+  }
+
+  .turkey-leg-b {
+    animation: turkey-step 0.55s ease-in-out infinite reverse;
+  }
+
+  @keyframes turkey-pace {
+    0%,
+    100% {
+      transform: translateX(-18%);
+    }
+    50% {
+      transform: translateX(18%) scaleX(-1);
+    }
+  }
+
+  @keyframes turkey-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+
+  @keyframes turkey-fan {
+    0%,
+    100% {
+      transform: rotate(-6deg);
+    }
+    50% {
+      transform: rotate(6deg);
+    }
+  }
+
+  @keyframes turkey-peck {
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+    40% {
+      transform: rotate(8deg);
+    }
+  }
+
+  @keyframes turkey-step {
+    0%,
+    100% {
+      transform: rotate(14deg);
+    }
+    50% {
+      transform: rotate(-14deg);
+    }
+  }
+}

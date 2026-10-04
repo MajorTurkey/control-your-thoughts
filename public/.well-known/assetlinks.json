@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.majorturkey.imagingbay",
+      "sha256_cert_fingerprints": [
+        "68:CD:F4:20:03:50:9F:33:AA:E4:BB:44:2C:68:BA:DE:CD:42:39:69:85:30:98:B0:AF:F8:06:D8:94:BF:9F:B1"
+      ]
+    }
+  }
+]

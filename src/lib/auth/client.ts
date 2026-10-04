@@ -103,6 +103,18 @@ export async function signIn(
   const callbackURL = opts.callbackURL ?? "/";
   const errorCallbackURL = opts.errorCallbackURL ?? "/";
 
+  // The installed app cannot finish Google or X inside its own window.
+  // Hand the whole sign-in to the phone browser, which returns through
+  // imagingbay:// once /auth/app-return has the session.
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.userAgent.includes("ImagingBay") &&
+    !callbackURL.includes("/auth/app-return")
+  ) {
+    window.location.assign(`/auth/start?provider=${encodeURIComponent(providerId)}`);
+    return;
+  }
+
   // Open the popup SYNCHRONOUSLY on the user gesture — before any await
   // (including signOut). Awaiting first drops user-gesture privilege in some
   // browsers when the opener is a cross-origin live-preview iframe.

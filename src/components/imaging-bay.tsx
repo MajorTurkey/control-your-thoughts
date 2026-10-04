@@ -6,13 +6,52 @@ import {
   type AspectId,
   type StyleId,
 } from "@/lib/imaging/catalog";
-import { exposePlate, takePlate } from "@/lib/imaging/generate";
-import { KEEP_COST, readCredits } from "@/lib/imaging/credits";
-import { PackRow, PlateWindow } from "@/components/plate-window";
+import { exposePlate } from "@/lib/imaging/generate";
+import { PlateWindow } from "@/components/plate-window";
+import { TurkeyWait } from "@/components/turkey-wait";
 
 const PREF_KEY = "imaging-bay";
+const LOG_KEY = "imaging-bay-log";
+const FOLDER_KEY = "imaging-bay-folder";
+const FOLDERS = [
+  { id: "downloads", label: "Downloads" },
+  { id: "pictures", label: "Pictures" },
+  { id: "documents", label: "Documents" },
+  { id: "dcim", label: "Camera" },
+] as const;
 
 type Phase = "idle" | "exposing" | "ready" | "error";
+type LogEntry = { text: string; at: number };
+type FolderId = (typeof FOLDERS)[number]["id"];
+
+function isFolder(value: string): value is FolderId {
+  return FOLDERS.some((item) => item.id === value);
+}
+
+function folderLabel(folder: FolderId): string {
+  return FOLDERS.find((item) => item.id === folder)?.label ?? "Downloads";
+}
+
+async function saveBlob(source: string) {
+  const blob = await (await fetch(source)).blob();
+  const type = blob.type || "image/jpeg";
+  const ext = type.includes("png") ? "png" : type.includes("webp") ? "webp" : "jpg";
+  const name = `imaging-bay-${Date.now()}.${ext}`;
+  const file = new File([blob], name, { type });
+  const objectUrl = URL.createObjectURL(file);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = name;
+  link.rel = "noopener";
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  // Keep the file address alive; revoking it right away cancels the save on Android Chrome.
+  window.setTimeout(() => {
+    link.remove();
+    URL.revokeObjectURL(objectUrl);
+  }, 60_000);
+}
 
 function ratioClass(aspect: AspectId): string {
   if (aspect === "1:1") return "frame-ratio-1-1";
@@ -37,13 +76,13 @@ export function ImagingBay() {
   const [status, setStatus] = useState("");
   const [shown, setShown] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
-  const [credits, setCredits] = useState(0);
-  const [creditsReady, setCreditsReady] = useState(false);
   const [windowOpen, setWindowOpen] = useState(false);
-  const [keptUrl, setKeptUrl] = useState<string | null>(null);
   const [fileNote, setFileNote] = useState("");
   const [reference, setReference] = useState("");
   const [liked, setLiked] = useState<string[]>([]);
+  const [online, setOnline] = useState(true);
+  const [history, setHistory] = useState<LogEntry[]>([]);
+  const [folder, setFolder] = useState<FolderId>("downloads");
 
   useEffect(() => {
     try {
@@ -60,9 +99,13 @@ export function ImagingBay() {
     } catch {
       /* keep defaults */
     }
+    try {
+      const savedFolder = localStorage.getItem(FOLDER_KEY);
+      if (savedFolder && isFolder(savedFolder)) setFolder(savedFolder);
+    } catch {
+      /* keep downloads */
+    }
     setPrefsReady(true);
-    setCredits(readCredits());
-    setCreditsReady(true);
     try {
       const raw = localStorage.getItem("imaging-bay-liked");
       if (raw) {
@@ -82,9 +125,9 @@ export function ImagingBay() {
   }, [prefsReady, styleId, aspect]);
 
   useEffect(() => {
-    if (!creditsReady) return;
-    localStorage.setItem("imaging-bay-credits", String(credits));
-  }, [creditsReady, credits]);
+    if (!prefsReady) return;
+    localStorage.setItem(FOLDER_KEY, folder);
+  }, [prefsReady, folder]);
 
   useEffect(() => {
     try {
@@ -103,9 +146,42 @@ export function ImagingBay() {
     return () => window.removeEventListener("keydown", onKey);
   }, [windowOpen]);
 
+  useEffect(() => {
+    const sync = () => setOnline(navigator.onLine);
+    sync();
+    window.addEventListener("online", sync);
+    window.addEventListener("offline", sync);
+    return () => {
+      window.removeEventListener("online", sync);
+      window.removeEventListener("offline", sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LOG_KEY);
+      const parsed = raw ? (JSON.parse(raw) as LogEntry[]) : [];
+      setHistory(Array.isArray(parsed) ? parsed.filter((item) => item && item.text).slice(0, 40) : []);
+    } catch {
+      setHistory([]);
+    }
+  }, []);
+
+  function rememberDescription(text: string) {
+    const next = [{ text, at: Date.now() }, ...history.filter((item) => item.text !== text)].slice(0, 40);
+    setHistory(next);
+    localStorage.setItem(LOG_KEY, JSON.stringify(next));
+  }
+
   async function expose() {
     const text = subject.trim();
     if (!text || phase === "exposing") return;
+    if (!navigator.onLine) {
+      setShown(true);
+      setPhase("error");
+      setStatus("The bay is dark. The desk stays. A new plate needs the line.");
+      return;
+    }
     setPhase("exposing");
     setShown(true);
     setStatus(reference ? "Engendering from the reference…" : "Exposing the plate…");
@@ -135,54 +211,26 @@ export function ImagingBay() {
       setFileNote("");
       setWindowOpen(true);
       setLogOpen(true);
+      rememberDescription(text);
     } catch (error) {
       setPhase("error");
       setStatus(error instanceof Error ? error.message : "The bay did not answer.");
     }
   }
 
-  async function savePlate(kind: "download" | "copy") {
-    if (!imageUrl || keptUrl !== imageUrl) return;
-    setFileNote(kind === "copy" ? "Copying…" : "Filing…");
-    try {
-      let source = imageUrl;
-      if (!source.startsWith("data:")) {
-        const taken = await takePlate({ data: { url: source } });
-        if (!taken.ok) {
-          setFileNote(taken.error);
-          return;
-        }
-        source = taken.dataUrl;
-      }
-      const blob = await (await fetch(source)).blob();
-      if (kind === "download") {
-        const kindOfFile = blob.type || "image/jpeg";
-        const ext = kindOfFile.includes("png") ? "png" : kindOfFile.includes("webp") ? "webp" : "jpg";
-        const name = `imaging-bay-${Date.now()}.${ext}`;
-        const file = new File([blob], name, { type: kindOfFile });
-        const href = URL.createObjectURL(file);
-        const link = document.createElement("a");
-        link.href = href;
-        link.download = name;
-        link.rel = "noopener";
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        // Keep the file address alive: revoking it right away cancels the save on Android Chrome.
-        window.setTimeout(() => {
-          link.remove();
-          URL.revokeObjectURL(href);
-        }, 60_000);
-        setFileNote(`Filed as ${name}. Check Downloads.`);
-        return;
-      }
-      const type = blob.type || "image/png";
-      await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
-      setFileNote("Copied.");
-    } catch {
-      setFileNote(kind === "copy" ? "Copy did not leave the bay." : "The file did not leave the bay.");
-    }
+  function savePlate() {
+    if (!imageUrl) return;
+    setFileNote(`Saving to ${folderLabel(folder)}.`);
+    setLiked((current) => [imageUrl, ...current.filter((item) => item !== imageUrl)].slice(0, 4));
+    if (saveHref) return;
+    void saveBlob(imageUrl).catch(() => setFileNote("The file did not leave the bay."));
   }
+
+  const plateSaveHref =
+    imageUrl && imageUrl.startsWith("https://")
+      ? `/api/plate-file?src=${encodeURIComponent(imageUrl)}&folder=${folder}`
+      : "";
+  const saveHref = plateSaveHref.length > 0 && plateSaveHref.length < 1800 ? plateSaveHref : "";
 
   async function shrinkReference(file: File): Promise<string> {
     const bitmap = await createImageBitmap(file);
@@ -211,7 +259,6 @@ export function ImagingBay() {
     setStatus("");
     setLogOpen(false);
     setWindowOpen(false);
-    setKeptUrl(null);
     setFileNote("");
   }
 
@@ -222,9 +269,11 @@ export function ImagingBay() {
     <main className="mx-auto w-full max-w-3xl px-5 pt-10 pb-20">
       <div className="reticle mb-5" aria-hidden="true" />
       <p className="bay-kicker text-xs uppercase">Survey vessel · Imaging bay</p>
-      <div className="mt-3 flex items-center gap-2 text-xs tracking-widest text-paper uppercase">
-        <span className="lamp" aria-hidden="true" />
-        <span className="bay-kicker">Bay live</span>
+      <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-xs tracking-widest text-paper uppercase">
+          <span className="lamp" aria-hidden="true" />
+          <span className="bay-kicker">{online ? "Bay live" : "Bay dark"}</span>
+        </div>
       </div>
       <h1 className="bay-title font-display mt-4 text-5xl leading-none font-medium text-balance">
         Imaging Bay
@@ -236,10 +285,6 @@ export function ImagingBay() {
         GPT Image 2.5 engenders the plate. Take a reference. Those desks also edit, take
         references, and remember what you liked.
       </p>
-      <div className="mt-5">
-        <p className="bay-label text-xs text-phosphor">{credits} credits</p>
-        <PackRow onDraw={(pack) => setCredits((count) => count + pack.credits)} />
-      </div>
 
       <section className="mt-10" aria-labelledby="plate-label">
         <h2 id="plate-label" className="bay-kicker mb-3 text-xs uppercase">
@@ -339,6 +384,23 @@ export function ImagingBay() {
           void expose();
         }}
       >
+        <label className="mb-6 block max-w-xs">
+          <span className="bay-label mb-2 block text-xs text-phosphor">Save folder</span>
+          <select
+            value={folder}
+            onChange={(event) => {
+              const next = event.target.value;
+              if (isFolder(next)) setFolder(next);
+            }}
+            className="bay-well min-h-12 w-full border border-line bg-hull px-3 text-base text-paper"
+          >
+            {FOLDERS.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <label htmlFor={subjectId} className="bay-label mb-2 block text-xs text-phosphor">
           What is in the frame
         </label>
@@ -359,6 +421,27 @@ export function ImagingBay() {
           {busy ? "Engendering" : reference ? "Engender" : "Expose"}
         </button>
       </form>
+
+      {history.length > 0 ? (
+        <section className="mt-8" aria-labelledby="description-log">
+          <h2 id="description-log" className="bay-kicker text-xs uppercase">
+            Log
+          </h2>
+          <ul className="mt-3 space-y-2">
+            {history.map((item) => (
+              <li key={item.at}>
+                <button
+                  type="button"
+                  className="min-h-11 text-left text-base leading-relaxed text-paper"
+                  onClick={() => setSubject(item.text)}
+                >
+                  {item.text}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {shown ? (
         <section className="mt-10" aria-live="polite">
@@ -382,13 +465,26 @@ export function ImagingBay() {
                   />
                 </button>
               ) : (
-                <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs tracking-widest text-mute uppercase">
-                  {busy ? "Exposing" : "No plate"}
-                </p>
+                <div className="absolute inset-0">
+                  {busy ? <TurkeyWait /> : (
+                    <p className="absolute inset-0 flex items-center justify-center px-6 text-center text-xs tracking-widest text-mute uppercase">
+                      No plate
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </div>
           <p className={`mt-3 text-sm ${phase === "error" ? "text-danger" : "text-mute"}`}>{status}</p>
+          {imageUrl && phase === "ready" ? (
+            <a
+              href={saveHref || undefined}
+              className="bay-press mt-4 inline-flex min-h-12 items-center px-6 text-xs uppercase"
+              onClick={savePlate}
+            >
+              Save
+            </a>
+          ) : null}
         </section>
       ) : null}
 
@@ -396,27 +492,15 @@ export function ImagingBay() {
         <PlateWindow
           url={imageUrl}
           label={plateLabel || selected.name}
-          credits={credits}
-          kept={keptUrl === imageUrl}
           note={fileNote}
+          saveHref={saveHref}
+          folder={folder}
+          folders={[...FOLDERS]}
+          onFolder={(next) => {
+            if (isFolder(next)) setFolder(next);
+          }}
           onClose={() => setWindowOpen(false)}
-          onKeep={() => {
-            if (keptUrl === imageUrl) return;
-            if (credits < KEEP_COST) {
-              setFileNote("A keep costs 1 credit.");
-              return;
-            }
-            setCredits((count) => count - KEEP_COST);
-            setKeptUrl(imageUrl);
-            setLiked((current) => [imageUrl, ...current.filter((item) => item !== imageUrl)].slice(0, 4));
-            setFileNote("Kept. Download the file, or copy it.");
-          }}
-          onDownload={() => void savePlate("download")}
-          onCopy={() => void savePlate("copy")}
-          onDraw={(pack) => {
-            setCredits((count) => count + pack.credits);
-            setFileNote(`${pack.name} added. ${pack.credits} credits.`);
-          }}
+          onSave={savePlate}
         />
       ) : null}
 
@@ -426,7 +510,7 @@ export function ImagingBay() {
           <ul className="mt-4 space-y-3">
             {LOG_LINES.map((line) => (
               <li key={line} className="border-l border-phosphor pl-3">
-                <p className="font-display text-lg leading-snug text-pretty italic">{line}</p>
+                <p className="text-base leading-relaxed text-pretty text-paper">{line}</p>
                 <button
                   type="button"
                   className="mt-1 min-h-11 text-xs tracking-widest text-phosphor uppercase"

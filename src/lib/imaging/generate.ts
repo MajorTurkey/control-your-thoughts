@@ -150,7 +150,7 @@ async function requestImage(
     aspect_ratio: aspect,
     resolution: "1k",
     quality: "auto",
-    response_format: "b64_json",
+    response_format: "url",
   };
   if (reference) payload.image = { url: reference };
   const endpoint = reference
